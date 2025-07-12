@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Spin Giveaway Hanya Untuk yang Sudah Follow</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: sans-serif;
+      margin-top: 40px;
+    }
+    #wheel {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 5px solid #333;
+      position: relative;
+      overflow: hidden;
+      transform: rotate(0deg);
+      transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0% 0%;
+      background: #eee;
+      border: 1px solid #ccc;
+    }
+    .label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 14px;
+      transform: rotate(45deg);
+    }
+    #pointer {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #spinBtn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="pointer"></div>
+  <div id="wheel"></div>
+  <button id="spinBtn">SPIN (FOLLOW DULU!)</button>
+
+  <script>
+    const prizes = [
+      { name: "100K", weight: 0 },
+      { name: "FOLLOW", weight: 35 },
+      { name: "75K", weight: 0 },
+      { name: "LIKE ya", weight: 20 },
+      { name: "50K", weight: 0 },
+      { name: "SHARE", weight: 20 },
+      { name: "HAMPIR", weight: 5 },
+      { name: "KOMEN", weight: 10 },
+      { name: "ZONK", weight: 10 }
+  ];
+
+    const wheel = document.getElementById("wheel");
+    const segmentCount = prizes.length;
+    const anglePerSegment = 360 / segmentCount;
+
+    // Buat tampilan roda (semua segmen sama besar)
+    prizes.forEach((prize, i) => {
+      const segment = document.createElement("div");
+      segment.className = "segment";
+      const angle = i * anglePerSegment;
+      segment.style.transform = `rotate(${angle}deg) skewY(${90 - anglePerSegment}deg)`;
+      segment.style.background = i % 2 === 0 ? "#fff" : "#ddd"; // polos
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = prize.name;
+      segment.appendChild(label);
+
+      wheel.appendChild(segment);
+    });
+
+    let rotation = 0;
+
+    function pickPrizeWeighted() {
+      const totalWeight = prizes.reduce((acc, p) => acc + p.weight, 0);
+      const rand = Math.random() * totalWeight;
+      let cumulative = 0;
+
+      for (let i = 0; i < prizes.length; i++) {
+        cumulative += prizes[i].weight;
+        if (rand < cumulative) return i;
+      }
+      return prizes.length - 1; // fallback
+    }
+
+    document.getElementById("spinBtn").onclick = () => {
+      const pickedIndex = pickPrizeWeighted();
+      const extraRotation = 360 * 10;
+      const targetAngle = 360 - (pickedIndex * anglePerSegment + anglePerSegment / 2);
+      rotation += extraRotation + targetAngle;
+
+      wheel.style.transform = `rotate(${rotation}deg)`;
+
+      setTimeout(() => {
+        alert("Selamat! Kamu mendapat: " + prizes[pickedIndex].name);
+      }, 5200);
+    };
+  </script>
+
+</body>
+</html>
